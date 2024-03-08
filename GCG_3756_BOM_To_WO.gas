@@ -1,0 +1,426 @@
+Program.Sub.ScreenSU.Start
+gui.SS_Form1..create
+gui.SS_Form1..caption("BOM To Work Order")
+gui.SS_Form1..size(5020,2425)
+gui.SS_Form1..position(0,0)
+gui.SS_Form1..event(unload,ss_form1_unload)
+gui.SS_Form1..alwaysontop(False)
+gui.SS_Form1..fontname("Arial")
+gui.SS_Form1..fontsize(8)
+gui.SS_Form1..forecolor(0)
+gui.SS_Form1..fontstyle(,,,,)
+gui.SS_Form1..BackColor(-2147483633)
+gui.SS_Form1..controlbox(True)
+gui.SS_Form1..maxbutton(False)
+gui.SS_Form1..minbutton(False)
+gui.SS_Form1..mousepointer(0)
+gui.SS_Form1..moveable(True)
+gui.SS_Form1..sizeable(False)
+gui.SS_Form1..ShowInTaskBar(True)
+gui.SS_Form1..titlebar(True)
+gui.SS_Form1.lbl_txtBOM.create(label,"Select Bill of Material",True,1800,200,1,100,135,True,0,Arial,8,-2147483633,0)
+gui.SS_Form1.txtBOM.create(textbox,"",True,1800,330,0,100,335,False,0,Arial,8,16777215,1)
+gui.SS_Form1.cmd_txtBOM.create(button)
+gui.SS_Form1.cmd_txtBOM.caption("^")
+gui.SS_Form1.cmd_txtBOM.visible(True)
+gui.SS_Form1.cmd_txtBOM.size(330,330)
+gui.SS_Form1.cmd_txtBOM.zorder(0)
+gui.SS_Form1.cmd_txtBOM.position(1985,335)
+gui.SS_Form1.cmd_txtBOM.enabled(True)
+gui.SS_Form1.cmd_txtBOM.fontname("Arial")
+gui.SS_Form1.cmd_txtBOM.fontsize(8)
+gui.SS_Form1.cmd_txtBOM.event(click,cmd_txtbom_click)
+gui.SS_Form1.lbl_txtStartSeq.create(label,"Starting Sequence",True,1800,200,1,100,750,True,0,Arial,8,-2147483633,0)
+gui.SS_Form1.txtStartSeq.create(textbox,"",True,1800,330,0,100,950,False,0,Arial,8,16777215,1)
+gui.SS_Form1.cmd_txtStartSeq.create(button)
+gui.SS_Form1.cmd_txtStartSeq.caption("^")
+gui.SS_Form1.cmd_txtStartSeq.visible(True)
+gui.SS_Form1.cmd_txtStartSeq.size(330,330)
+gui.SS_Form1.cmd_txtStartSeq.zorder(0)
+gui.SS_Form1.cmd_txtStartSeq.position(1985,950)
+gui.SS_Form1.cmd_txtStartSeq.enabled(True)
+gui.SS_Form1.cmd_txtStartSeq.fontname("Arial")
+gui.SS_Form1.cmd_txtStartSeq.fontsize(8)
+gui.SS_Form1.cmd_txtStartSeq.event(click,cmd_txtstartseq_click)
+gui.SS_Form1.lbl_txtEndSeq.create(label,"Ending Sequence",True,1800,200,1,2455,750,True,0,Arial,8,-2147483633,0)
+gui.SS_Form1.txtEndSeq.create(textbox,"",True,1800,330,0,2455,950,False,0,Arial,8,16777215,1)
+gui.SS_Form1.cmd_txtEndSeq.create(button)
+gui.SS_Form1.cmd_txtEndSeq.caption("^")
+gui.SS_Form1.cmd_txtEndSeq.visible(True)
+gui.SS_Form1.cmd_txtEndSeq.size(330,330)
+gui.SS_Form1.cmd_txtEndSeq.zorder(0)
+gui.SS_Form1.cmd_txtEndSeq.position(4340,950)
+gui.SS_Form1.cmd_txtEndSeq.enabled(True)
+gui.SS_Form1.cmd_txtEndSeq.fontname("Arial")
+gui.SS_Form1.cmd_txtEndSeq.fontsize(8)
+gui.SS_Form1.cmd_txtEndSeq.event(click,cmd_txtendseq_click)
+gui.SS_Form1.cmdOk.create(button)
+gui.SS_Form1.cmdOk.caption("OK")
+gui.SS_Form1.cmdOk.visible(True)
+gui.SS_Form1.cmdOk.size(1000,360)
+gui.SS_Form1.cmdOk.zorder(0)
+gui.SS_Form1.cmdOk.position(100,1450)
+gui.SS_Form1.cmdOk.enabled(True)
+gui.SS_Form1.cmdOk.fontname("Arial")
+gui.SS_Form1.cmdOk.fontsize(8)
+gui.SS_Form1.cmdOk.event(click,cmdok_click)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Variable.Global.bChk.Declare(Boolean,True)
+Variable.Global.iMultiple.Declare(Long,0)
+Variable.Global.bCon.Declare(Boolean,False)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Coded by: mla
+'Project Start Date: 10/12/2011
+'Hooks:
+'  16690, 16630
+'Notes:
+'  Marchant Schmidt
+'F.Intrinsic.Debug.InvokeDebugger
+'F.Intrinsic.Debug.Stop
+
+F.Intrinsic.Control.If(V.Caller.Hook,=,16690)
+	F.Intrinsic.Control.If(V.Passed.000003.Trim,<>,"")
+		V.Global.bCon.Set(True)
+		F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+		Gui.SS_Form1..Show
+	F.Intrinsic.Control.Else
+		F.Intrinsic.Control.CallSub(Ss_form1_unload)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	F.Intrinsic.Control.CallSub(Screenload)
+	F.Intrinsic.Control.CallSub(Ss_form1_unload)
+F.Intrinsic.Control.EndIf
+
+Program.Sub.Main.End
+
+Program.Sub.Load.Start
+F.Intrinsic.Control.SetErrorHandler("Load_Err")
+F.Intrinsic.Control.ClearErrors
+'F.Intrinsic.Debug.InvokeDebugger
+'F.Intrinsic.Debug.Stop
+
+V.Local.sError.Declare(String)
+V.Local.sSql.Declare(String)
+V.Local.iOp.Declare(Long)
+
+V.Local.iMod.Declare(Long)
+
+V.Local.sFileName.Declare(String)
+
+V.Local.sOpString.Declare(String)
+V.Local.iRetHandle.Declare(Long)
+V.local.sParam.Declare(String)
+V.Local.sParam.Set("NS!*!50")
+
+
+V.Local.Job.Declare(String)
+F.Intrinsic.String.RPad(V.Passed.000003," ",6,V.Local.Job)
+V.Local.Suffix.Declare(String)
+F.Intrinsic.String.RPad(V.Passed.000004," ",3,V.Local.Suffix)
+V.Local.sOp.Declare(String)
+V.local.s1.Declare(String,"       ")
+V.Local.LMOC.Declare(String,"M")
+V.Local.sDesc.Declare(String)
+V.Local.sUM.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.s2.Declare(String,"                          0               ")
+V.Local.Unit.Declare(Float)
+V.Local.s3.Declare(String,"                                                                                                          ")
+
+F.Intrinsic.String.Concat("Select SEQ from V_JOB_OPERATIONS where JOB = '",V.Passed.000003.Trim,"' and SUFFIX = '",V.Passed.000004.Trim,"' and SEQ < '990000' ORDER BY SEQ",V.Local.sSql)
+F.ODBC.Connection!con.OpenRecordsetRO("rst",V.Local.sSql)
+F.Intrinsic.Control.If(V.ODBC.con!rst.EOF,=,True)
+	V.Local.iOp.Set(0)
+F.Intrinsic.Control.Else
+	F.Intrinsic.Control.DoUntil(V.ODBC.con!rst.EOF,=,True)
+		V.Local.iOp.Set(V.ODBC.con!rst.FieldValTrim!SEQ)
+		F.ODBC.con!rst.MoveNext
+	F.Intrinsic.Control.Loop
+	F.Intrinsic.Math.Mod(V.Local.iOp,V.Global.iMultiple,V.Local.iMod)
+	F.Intrinsic.Control.If(V.Local.iMod,<>,0)
+		F.Intrinsic.Math.Sub(V.Local.iOp,V.Local.iMod,V.Local.iOp)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+F.ODBC.con!rst.Close
+
+F.Intrinsic.String.Concat("Select PART, QUANTITY, COST, FREQUENCY, UM_INVENTORY from V_BOM_MSTR where SEQUENCE_BOM <> '0000' and PARENT = '",V.Screen.SS_Form1!txtBOM.Text,"' and SEQUENCE_BOM Between '",V.Screen.SS_Form1!txtStartSeq.Text,"' and '",V.Screen.SS_Form1!txtEndSeq.Text,"' ORDER BY SEQUENCE_BOM",V.Local.sSql)
+F.ODBC.Connection!con.OpenRecordsetRO("rst",V.Local.sSql)
+
+F.Intrinsic.Control.DoUntil(V.ODBC.con!rst.EOF,=,True)
+	F.Intrinsic.Math.Add(V.Local.iOp,V.Global.iMultiple,V.Local.iOp)
+	F.Intrinsic.String.Format(V.Local.iOp,"000000",V.Local.sOp)
+	V.local.sUM.Set(V.ODBC.con!rst.FieldValTrim!UM_INVENTORY)
+	F.Intrinsic.String.Concat("Select DESCRIPTION from V_INVENTORY_MSTR where PART = '",V.ODBC.con!rst.FieldValTrim!PART,"'",V.Local.sSql)
+	F.ODBC.Connection!con.OpenRecordsetRO("rstDesc",V.Local.sSql)
+	F.Intrinsic.Control.If(V.ODBC.con!rstDesc.EOF,=,True)
+		F.ODBC.con!rstDesc.Close
+		F.Intrinsic.String.Concat("Select DESCRIPTION from V_BOM_ENG where PART = '",V.ODBC.con!rst.FieldValTrim!PART,"'",V.Local.sSql)
+		F.ODBC.Connection!con.OpenRecordsetRO("rstDesc",V.Local.sSql)
+		F.Intrinsic.Control.If(V.ODBC.con!rstDesc.EOF,=,True)
+			V.Local.sDesc.Set("No Description")
+		F.Intrinsic.Control.Else
+			V.Local.sDesc.Set(V.ODBC.con!rstDesc.FieldValTrim!DESCRIPTION)
+		F.Intrinsic.Control.EndIf
+		F.ODBC.con!rstDesc.Close
+	F.Intrinsic.Control.Else
+		V.Local.sDesc.Set(V.ODBC.con!rstDesc.FieldValTrim!DESCRIPTION)
+		F.ODBC.con!rstDesc.Close
+	F.Intrinsic.Control.EndIf
+	F.Intrinsic.String.RPad(V.Local.sDesc," ",30,V.Local.sDesc)
+	F.Intrinsic.String.RPad(V.ODBC.con!rst.FieldValTrim!PART," ",20,V.Local.spart)
+	V.Local.Unit.Set(V.ODBC.con!rst.FieldValFloat!QUANTITY)
+	F.Intrinsic.String.RPad(V.Local.Unit," ",16,V.Local.Unit)
+	F.Intrinsic.String.Concat(V.Local.sOpString,V.Local.Job,V.Local.Suffix,V.Local.sOp,V.Local.s1,V.Local.LMOC,V.Local.sDesc,V.Local.sUM,V.local.sPart,V.Local.s2,V.Local.Unit,V.Local.s3,V.Local.sOpString)
+	F.Intrinsic.String.Concat(V.Local.sOpString,V.Ambient.NewLine,V.Local.sOpString)
+	F.ODBC.con!rst.MoveNext
+F.Intrinsic.Control.Loop
+F.ODBC.con!rst.Close
+
+F.Intrinsic.String.Concat(V.Caller.FilesDir,"\JOBCOST.TXT",V.Local.sFileName)
+F.Intrinsic.Control.If(V.Local.sOpString,<>,"")
+	F.Intrinsic.File.String2File(V.Local.sFileName,V.Local.sOpString)
+F.Intrinsic.Control.EndIf
+
+F.Global.General.CallWrapperSync(6008,V.Local.sParam)
+
+F.Intrinsic.Control.CallSub(Ss_form1_unload)
+
+
+F.Intrinsic.Control.Label("Load_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_BOM_To_WO.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Load.End
+
+program.sub.cmd_txtbom_click.start
+F.Intrinsic.Control.SetErrorHandler("cmd_txtbom_click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sRet.Declare(String)
+V.Local.sSql.Declare(String)
+V.Local.iKey.Declare(Long)
+
+F.Intrinsic.UI.SetBrowserHotTypeAhead(True)
+F.Intrinsic.UI.Browser(3005,"",V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+	Gui.SS_Form1.txtBOM.Text(V.Local.sRet(0).Trim)
+	Gui.SS_Form1.txtStartSeq.Text("")
+	Gui.SS_Form1.txtEndSeq.Text("")
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmd_txtbom_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_BOM_To_WO.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+program.sub.cmd_txtbom_click.end
+
+program.sub.ss_form1_unload.start
+F.Intrinsic.Control.If(V.Global.bCon,=,True)
+	F.ODBC.Connection!con.Close
+F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.End
+
+program.sub.ss_form1_unload.end
+
+program.sub.cmdok_click.start
+F.Intrinsic.Control.SetErrorHandler("cmdok_click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.Intrinsic.Control.CallSub(Opchk)
+F.Intrinsic.Control.If(V.Global.bChk,=,True)
+	Gui.SS_Form1..Visible(False)
+	F.Intrinsic.Control.CallSub(Multiplechk)
+	F.Intrinsic.Control.CallSub(Load)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdok_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_BOM_To_WO.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+program.sub.cmdok_click.end
+
+Program.Sub.OpChk.Start
+F.Intrinsic.Control.SetErrorHandler("OpChk_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Global.bChk.Set(True)
+F.Intrinsic.Control.If(V.Screen.SS_Form1!txtBOM.Text,=,"")
+	F.Intrinsic.UI.Msgbox("No Bill of Material selected!","Error")
+	V.Global.bChk.Set(False)
+	F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.If(V.Screen.SS_Form1!txtStartSeq.Text,=,"")
+	F.Intrinsic.UI.Msgbox("No sequence start selected!","Error")
+	V.Global.bChk.Set(False)
+	F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.If(V.Screen.SS_Form1!txtEndSeq.Text,=,"")
+	F.Intrinsic.UI.Msgbox("No sequence stop selected!","Error")
+	V.Global.bChk.Set(False)
+	F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.If(V.Screen.SS_Form1!txtEndSeq.Text,<,V.Screen.SS_Form1!txtStartSeq.Text)
+	F.Intrinsic.UI.Msgbox("Sequence start greater than sequence stop!","Error")
+	V.Global.bChk.Set(False)
+	F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("OpChk_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_BOM_To_WO.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.OpChk.End
+
+Program.Sub.MultipleChk.Start
+F.Intrinsic.Control.SetErrorHandler("MultipleChk_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sSql.Declare(String)
+
+V.Local.sSql.Set("Select MULT_FACTOR from OPT_RES_COM where FUNCT = 'RS' and TYPE = 'CO' and FILLER = ''")
+F.ODBC.Connection!con.OpenRecordsetRO("rst",V.Local.sSql)
+F.Intrinsic.Control.If(V.ODBC.con!rst.EOF,=,True)
+	F.Intrinsic.UI.Msgbox("Operation multiplier not set in Company Options!","Error")
+	F.ODBC.con!rst.Close
+	F.Intrinsic.Control.CallSub(Ss_form1_unload)
+F.Intrinsic.Control.Else
+	V.Global.iMultiple.Set(V.ODBC.con!rst.FieldValTrim!MULT_FACTOR)
+	F.ODBC.con!rst.Close
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("MultipleChk_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_BOM_To_WO.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.MultipleChk.End
+
+Program.Sub.ScreenLoad.Start
+Variable.passed.000093.set("BOM to WO")
+F.Intrinsic.Control.If(V.Caller.Switches,=,"V")
+	Function.Intrinsic.UI.ChangeCallerProperty(Variable.passed.000093,"LOCK",1)
+F.Intrinsic.Control.EndIf
+
+Program.Sub.ScreenLoad.End
+
+program.sub.cmd_txtstartseq_click.start
+F.Intrinsic.Control.SetErrorHandler("cmd_txtstartseq_click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sSql.Declare(String)
+V.Local.sTitles.Declare(String)
+V.Local.sWidths.Declare(String)
+V.Local.sRet.Declare(String)
+
+F.Intrinsic.String.Concat("Select V_BOM_MSTR.SEQUENCE_BOM, V_BOM_MSTR.PART, V_BOM_ENG.DESCRIPTION from V_BOM_MSTR INNER JOIN V_BOM_ENG on V_BOM_MSTR.PART = V_BOM_ENG.PART where SEQUENCE_BOM <> '0000' and PARENT = '",V.Screen.SS_Form1!txtBOM.Text,"' ORDER BY SEQUENCE_BOM",V.Local.sSql)
+V.Local.sTitles.Set("Sequence*!*Part*!*Description")
+V.Local.sWidths.Set("1000*!*2500*!*3200")
+
+F.Intrinsic.String.Split(V.Local.sTitles,"*!*",V.Local.sTitles)
+F.Intrinsic.String.Split(V.Local.sWidths,"*!*",V.Local.sWidths)
+F.Intrinsic.UI.SetBrowserHotTypeAhead(True)
+F.Intrinsic.UI.Browser("Select Sequence","con",V.Local.sSql,V.Local.sTitles,V.Local.sWidths,7500,8000,V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+	Gui.SS_Form1.txtStartSeq.Text(V.Local.sRet.Trim)
+	Gui.SS_Form1.txtEndSeq.Text(V.Local.sRet.Trim)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmd_txtstartseq_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_BOM_To_WO.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+
+program.sub.cmd_txtstartseq_click.end
+
+program.sub.cmd_txtendseq_click.start
+F.Intrinsic.Control.SetErrorHandler("cmd_txtendseq_click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sSql.Declare(String)
+V.Local.sTitles.Declare(String)
+V.Local.sWidths.Declare(String)
+V.Local.sRet.Declare(String)
+
+F.Intrinsic.String.Concat("Select V_BOM_MSTR.SEQUENCE_BOM, V_BOM_MSTR.PART, V_BOM_ENG.DESCRIPTION from V_BOM_MSTR INNER JOIN V_BOM_ENG on V_BOM_MSTR.PART = V_BOM_ENG.PART where SEQUENCE_BOM <> '0000' and PARENT = '",V.Screen.SS_Form1!txtBOM.Text,"' ORDER BY SEQUENCE_BOM",V.Local.sSql)
+V.Local.sTitles.Set("Sequence*!*Part*!*Description")
+V.Local.sWidths.Set("1000*!*2500*!*3200")
+
+F.Intrinsic.String.Split(V.Local.sTitles,"*!*",V.Local.sTitles)
+F.Intrinsic.String.Split(V.Local.sWidths,"*!*",V.Local.sWidths)
+F.Intrinsic.UI.SetBrowserHotTypeAhead(True)
+F.Intrinsic.UI.Browser("Select Sequence","con",V.Local.sSql,V.Local.sTitles,V.Local.sWidths,7500,8000,V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+	Gui.SS_Form1.txtEndSeq.Text(V.Local.sRet.Trim)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmd_txtendseq_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_BOM_To_WO.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+
+program.sub.cmd_txtendseq_click.end
+
+Program.Sub.ScreenSS.Start
+SS_Form1{{CAPTION::BOM To Work Order
+SS_Form1.CTRL{{NAME::txtBOM\\TYPE::2\\CAPTION::Select Bill of Material\\GROUP::-1\\BROWSER::1\\SIZE::1
+SS_Form1.CTRL{{NAME::txtStartSeq\\TYPE::2\\CAPTION::Starting Sequence\\GROUP::1\\BROWSER::1\\SIZE::1
+SS_Form1.CTRL{{NAME::txtEndSeq\\TYPE::2\\CAPTION::Ending Sequence\\GROUP::1\\BROWSER::1\\SIZE::1
+SS_Form1.CTRL{{NAME::cmdOk\\TYPE::5\\CAPTION::OK\\GROUP::-1\\BROWSER::0\\SIZE::1
+
+Program.Sub.ScreenSS.End
+Program.Sub.Comments.Start
+${$0$}$GCG_3756_BOM_To_WO$}$JCT$}$4/8/2016
+${$1$}$$}$$}$1$}$16630$}$Populate Hook$}$4/8/2016 3:26:32 PM$}$(Program: JB0010GI; Screen: JBS0010  )
+
+${$1$}$$}$$}$0$}$16690$}$Script 3 Hook$}$4/8/2016 3:26:12 PM$}$(Program: JB0010GI; Screen: JBS0010)
+
+Program.Sub.Comments.End
+
